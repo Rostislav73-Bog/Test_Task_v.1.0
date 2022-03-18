@@ -1,9 +1,10 @@
-from fastapi import FastAPI, WebSocket, Request
+import starlette
+from fastapi import FastAPI,WebSocket, Request
 from fastapi.responses import HTMLResponse
 from fastapi.responses import Response
 from incoming_messages import data
 from incoming_messages import router
-
+from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 
@@ -56,8 +57,11 @@ async def websocket_endpoint(websocket: WebSocket):
     index = 0
     while True:
         index += 1
+        jsonable_encoder(index)
         data = await websocket.receive_text()
+        jsonable_encoder(data)
         print(index, ".", data)
-        await websocket.send_text(f"{index}. {data}")
+        await websocket.send_json(f"{index}. {data}")
+        starlette.websockets.WebSocketDisconnect()
 
 
