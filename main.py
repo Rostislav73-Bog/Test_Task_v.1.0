@@ -1,10 +1,7 @@
 import starlette
-from fastapi import FastAPI,WebSocket, Request
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
-from fastapi.responses import Response
-from incoming_messages import data
 from incoming_messages import router
-from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 
@@ -14,28 +11,29 @@ html = """
 <!DOCTYPE html>
 <html>
     <head>
+
         <title>Message</title>
     </head>
     <body style="color:#2F4F4F; background-color:#FFF0F5">
         <h1>Messages</h1>
         <form action="" onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
+            <input type="JSON.stringify" id="messageText" autocomplete="off"/>
             <button>Send</button>
         </form>
         <ul id='messages'>
         </ul>
         <script>
             var ws = new WebSocket("ws://localhost:8000/ws");
-            ws.onmessage = function(event) {
+            ws.onmessage = function() {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
                 var content = document.createTextNode(event.data)
                 message.appendChild(content)
                 messages.appendChild(message)
             };
-            function sendMessage(event) {
+            function sendMessage() {
                 var input = document.getElementById("messageText")
-                ws.send(input.value)
+                ws.send(JSON.stringify(input.value))
                 input.value = ''
                 event.preventDefault()
             }
@@ -57,11 +55,7 @@ async def websocket_endpoint(websocket: WebSocket):
     index = 0
     while True:
         index += 1
-        jsonable_encoder(index)
-        data = await websocket.receive_text()
-        jsonable_encoder(data)
+        data = await websocket.receive_json()
         print(index, ".", data)
         await websocket.send_json(f"{index}. {data}")
-        starlette.websockets.WebSocketDisconnect()
-
 

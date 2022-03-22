@@ -44,3 +44,5 @@ async def del_text(id: int):
     for message in data:
         if message.id == id:
             data.remove(message)
+
+
