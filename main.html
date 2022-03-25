@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <title>Message</title>
+        <style>
+            *{
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            main{
+                width: 70%;
+                margin: auto;
+            }
+
+            form{
+                margin-top: 30px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin-right: auto;
+                background-color: #0aa7a7;
+                border: 1px solid black;
+                border-radius: 10px;
+                padding: 50px;
+            }
+
+            form > div{
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            form > div > input{
+                width: 70%;
+                margin: 10px auto;
+                border-radius: 10px;
+                font-size: 15px;
+                padding: 10px;
+            }
+
+            button{
+                width: 70%;
+                font-size: 20px;
+                border-radius: 10px;
+
+            }
+
+            li{
+                font-size: 25px;
+                background-color: #7aa7a7;
+                border: 1px solid black;
+                border-radius: 10px;
+                padding: 20px;
+                margin-top: 15px;
+            }
+        </style>
+    </head>
+    <body style="color:#2F4F4F; background-color:#FFF0F5">
+        <main>
+            <form action="" onsubmit="sendMessage(event)">
+                <h1>Messages</h1>
+                <div class="container">
+                    <input  id="messageBody" placeholder="Введите сообщение" autocomplete="off"/>
+                </div>
+                <button>Send</button>
+            </form>
+            <ul id='messages' style="list-style: none">
+            </ul>
+        </main>
+        <script>
+            let message = '';
+            let messageId = 0;
+            let ws = new WebSocket("ws://localhost:8000/ws");
+
+
+            ws.onmessage = function(response) {
+                message = JSON.parse(response.data);
+                let messageText = `<li><div>${message.id}. ${message.body}</div></li>`
+                $('#messages').append(messageText)
+                messageId += 1;
+
+            };
+
+            function sendMessage() {
+
+                let body = $('#messageBody').val()
+                let message = {
+                    messageId: messageId + 1,
+                    body: body
+                }
+
+                ws.send(JSON.stringify(message))
+                $('#messageBody').val('')
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
