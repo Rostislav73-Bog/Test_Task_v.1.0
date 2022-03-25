@@ -18,11 +18,13 @@ async def get():
 @app.get("/")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    index = 0
     while True:
         data = await websocket.receive_json()
+        index += 1
         request_message = {
 
-            'id': data['messageId'],
+            'id': index,
             'body': data['body']
 
         }
